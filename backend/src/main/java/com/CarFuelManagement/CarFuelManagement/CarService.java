@@ -1,13 +1,13 @@
 package com.CarFuelManagement.CarFuelManagement;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
 import com.CarFuelManagement.CarFuelManagement.model.Car;
 import com.CarFuelManagement.CarFuelManagement.model.Fuel;
@@ -52,11 +52,11 @@ public class CarService {
 
         List<Fuel> entries = car.getFuels();
         if (entries.isEmpty()) {
-            return Map.of(
-                    "totalFuel", 0.0,
-                    "totalCost", 0.0,
-                    "avgConsumption", 0.0
-            );
+            Map<String, Object> emptyResult = new HashMap<>();
+            emptyResult.put("totalFuel", 0.0);
+            emptyResult.put("totalCost", 0.0);
+            emptyResult.put("avgConsumption", 0.0);
+            return emptyResult;
         }
 
         double totalFuel = entries.stream()
@@ -65,23 +65,21 @@ public class CarService {
                 .mapToDouble(Fuel::getPrice).sum();
 
         double avgConsumption = 0.0;
-        double distance = 0.0;
         if (entries.size() >= 2) {
             int firstOdo = entries.get(0).getOdometers();
             int lastOdo = entries.get(entries.size() - 1).getOdometers();
-            distance = lastOdo - firstOdo;
+            int distance = lastOdo - firstOdo;
 
             if (distance > 0) {
                 avgConsumption = (totalFuel / distance) * 100;
             } 
         }
 
-        return Map.of(
-                "totalFuel", totalFuel,
-                "totalCost", totalCost,
-                "avgConsumption", avgConsumption,
-                "distance", distance
-        );
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalFuel", totalFuel);
+        result.put("totalCost", totalCost);
+        result.put("avgConsumption", avgConsumption);
+        return result;
     }
 
 }
